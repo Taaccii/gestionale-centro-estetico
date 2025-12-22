@@ -10,7 +10,7 @@ __pycache__/
 *.pyc
 
 # Database
-db.sqlite3
+
 
 # IDE
 .vscode/
