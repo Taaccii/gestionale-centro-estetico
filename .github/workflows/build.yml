@@ -1,63 +1,69 @@
-name: Build Desktop Application (Windows)
-# Questo robot si attiva ogni volta che fai un "push" (carichi codice) su GitHub
+name: Build Desktop Application (Windows & Mac)
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build-windows:
-    # Qui diciamo a GitHub: "Dacci un computer con Windows!"
     runs-on: windows-latest
     steps:
-    - name: Scarica il codice dal repository
-      uses: actions/checkout@v4
-    - name: Configura Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Installa le dipendenze
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
-    - name: Build Windows EXE
-      # Qui creiamo l'eseguibile.
-      # --onefile: crea un unico file portable
-      # --noconsole: non apre la finestra nera del terminale all'avvio
-      # --add-data: includiamo il database e gli asset grafici
-      # --collect-submodules: forza l'inclusione dei moduli del progetto
-      run: |
-        pyinstaller --noconsole --onefile --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
-    - name: Carica l'eseguibile pronto (Artifact)
-      # Questo passo prende il file creato e lo mette a tua disposizione per il download
-      uses: actions/upload-artifact@v4
-      with:
-        name: Gestionale-Windows-Portable
-        path: dist/GestionaleCentroEstetico.exe
+      - name: Scarica il codice dal repository
+        uses: actions/checkout@v4
+      
+      - name: Configura Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Installa le dipendenze
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build Windows EXE
+        run: |
+          pyinstaller --noconsole --onefile --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
+      
+      - name: Carica l'eseguibile Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gestionale-Windows-Portable
+          path: dist/GestionaleCentroEstetico.exe
 
-    # --- IL NUOVO ROBOT MAC ---
   build-macos:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
-    - name: Build MacOS APP
-      run: |
-        # Per Mac usiamo --windowed per creare il file .app (che è il formato standard)
-        pyinstaller --noconsole --windowed --onefile --paths . --collect-submodules core --collect-submodules gui \
-        --add-data "db.sqlite3:." \
-        --add-data "assets:assets" \
-        --name "GestionaleCentroEstetico" \
-        main.py
-    - name: Carica il pacchetto Mac
-      uses: actions/upload-artifact@v4
-      with:
-        name: Gestionale-Mac-App
-        # PyInstaller su Mac crea una cartella .app nella cartella dist
-        path: dist/GestionaleCentroEstetico.app
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build MacOS APP
+        run: |
+          pyinstaller --noconsole --onedir --paths . \
+            --collect-submodules core \
+            --collect-submodules gui \
+            --add-data "db.sqlite3:." \
+            --add-data "assets:assets" \
+            --name "GestionaleCentroEstetico" \
+            main.py
+      
+      - name: Comprimi l'app Mac in ZIP
+        run: |
+          cd dist
+          zip -r GestionaleCentroEstetico-Mac.zip GestionaleCentroEstetico.app
+      
+      - name: Carica il pacchetto Mac
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gestionale-Mac-App
+          path: dist/GestionaleCentroEstetico-Mac.zip
