@@ -1,6 +1,19 @@
 """
 Finestra principale dell'applicazione
 """
+import os
+import sys
+from pathlib import Path
+# --- FIX PER PYINSTALLER / CORE SETTINGS ---
+# Questo blocco deve stare PRIMA di ogni altro import del progetto
+if getattr(sys, 'frozen', False):
+    # Se siamo dentro un eseguibile, aggiungiamo la cartella corrente al percorso di ricerca
+    bundle_dir = Path(sys._MEIPASS)
+    if str(bundle_dir) not in sys.path:
+        sys.path.append(str(bundle_dir))
+# Diciamo a Django dove si trova esattamente il file delle impostazioni
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+
 
 from gui.components.toast import ToastNotification
 import customtkinter as ctk
