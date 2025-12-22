@@ -62,7 +62,22 @@
 
 ---
 
-## 📦 4. How to Run
+## 📦 4. Distribuzione e Manutenzione (CI/CD)
+
+Il progetto utilizza **GitHub Actions** per la creazione automatica degli eseguibili per Windows e MacOS.
+
+### Recupero degli Eseguibili
+1. Accedi al repository su GitHub.
+2. Vai nella scheda **Actions**.
+3. Seleziona l'ultima build completata con successo (segno di spunta verde ✅).
+4. In fondo alla pagina, nella sezione **Artifacts**, scarica il pacchetto desiderato:
+   - `Gestionale-Windows-Portable`: Un unico file `.exe` per Windows.
+   - `Gestionale-Mac-App`: Pacchetto `.app` per MacOS.
+
+### Manutenzione Futura
+Ogni volta che viene effettuato un `git push` sul ramo `main`, i server di GitHub rigenerano automaticamente gli eseguibili aggiornati.
+
+### Esecuzione in fase di Sviluppo
 ```bash
 source venv/bin/activate
 python -m gui.app
