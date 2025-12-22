@@ -24,7 +24,7 @@ jobs:
       
       - name: Build Windows EXE
         run: |
-          pyinstaller --noconsole --onefile --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
+          pyinstaller --noconsole --onefile --icon=assets/icon.ico --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
       
       - name: Carica l'eseguibile Windows
         uses: actions/upload-artifact@v4
@@ -49,7 +49,7 @@ jobs:
       
       - name: Build MacOS APP
         run: |
-          pyinstaller --noconsole --onedir --paths . \
+          pyinstaller --noconsole --onedir --icon=assets/icon.icns --paths . \
             --collect-submodules core \
             --collect-submodules gui \
             --add-data "db.sqlite3:." \
