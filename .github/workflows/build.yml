@@ -19,17 +19,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
-    - name: Build con PyInstaller (Single File Portable)
+    - name: Build Windows EXE
       # Qui creiamo l'eseguibile.
       # --onefile: crea un unico file portable
       # --noconsole: non apre la finestra nera del terminale all'avvio
       # --add-data: includiamo il database e gli asset grafici
+      # --collect-submodules: forza l'inclusione dei moduli del progetto
       run: |
-        pyinstaller --noconsole --onefile `
-        --add-data "db.sqlite3;." `
-        --add-data "assets;assets" `
-        --name "GestionaleCentroEstetico" `
-        gui/app.py
+        pyinstaller --noconsole --onefile --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" gui/app.py
     - name: Carica l'eseguibile pronto (Artifact)
       # Questo passo prende il file creato e lo mette a tua disposizione per il download
       uses: actions/upload-artifact@v4
@@ -53,7 +50,7 @@ jobs:
     - name: Build MacOS APP
       run: |
         # Per Mac usiamo --windowed per creare il file .app (che è il formato standard)
-        pyinstaller --noconsole --windowed --onefile \
+        pyinstaller --noconsole --windowed --onefile --collect-submodules core --collect-submodules gui \
         --add-data "db.sqlite3:." \
         --add-data "assets:assets" \
         --name "GestionaleCentroEstetico" \
