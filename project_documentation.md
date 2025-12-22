@@ -1,7 +1,7 @@
 # 📘 Gestionale Centro Estetico - Project Documentation
 
-> **Status:** Phase 10 (Consolidamento & QA) - Finalized  
-> **Last Update:** 19/12/2024  
+> **Status:** Phase 11 (Distribuzione Automatizzata) - Finalized  
+> **Last Update:** 22/12/2024  
 > **Framework:** Django (Backend) + CustomTkinter (Frontend)
 
 ---
@@ -62,23 +62,30 @@
 
 ---
 
-## 📦 4. Distribuzione e Manutenzione (CI/CD)
-
-Il progetto utilizza **GitHub Actions** per la creazione automatica degli eseguibili per Windows e MacOS.
-
-### Recupero degli Eseguibili
-1. Accedi al repository su GitHub.
-2. Vai nella scheda **Actions**.
-3. Seleziona l'ultima build completata con successo (segno di spunta verde ✅).
-4. In fondo alla pagina, nella sezione **Artifacts**, scarica il pacchetto desiderato:
-   - `Gestionale-Windows-Portable`: Un unico file `.exe` per Windows.
-   - `Gestionale-Mac-App`: Pacchetto `.app` per MacOS.
-
-### Manutenzione Futura
-Ogni volta che viene effettuato un `git push` sul ramo `main`, i server di GitHub rigenerano automaticamente gli eseguibili aggiornati.
-
-### Esecuzione in fase di Sviluppo
 ```bash
 source venv/bin/activate
 python -m gui.app
 ```
+
+---
+
+## 🏗️ 5. Distribution & CI/CD (GitHub Actions)
+
+Il progetto utilizza un sistema di **Continuous Integration** per generare automaticamente gli eseguibili per Windows e Mac.
+
+### Come ottenere gli eseguibili:
+1.  Accedi al repository su **GitHub**.
+2.  Vai nella scheda **"Actions"**.
+3.  Seleziona l'ultima build completata (con segno di spunta verde ✅).
+4.  Scarica i file dalla sezione **"Artifacts"** in fondo alla pagina:
+    -   `Gestionale-Windows-Portable`: File `.exe` per Windows.
+    -   `Gestionale-Mac-App`: Pacchetto `.app` per macOS.
+
+### Note sulla sicurezza:
+-   **Windows**: Al primo avvio, se appare SmartScreen, cliccare su "Ulteriori informazioni" -> "Esegui comunque".
+-   **macOS**: Fare "Tasto destro" -> "Apri" la prima volta per ignorare il blocco dello sviluppatore non identificato.
+-   **Database**: Il file `db.sqlite3` è incluso nell'eseguibile. Per backup manuali, esportare il file `.json` dalla sezione Settings dell'app.
+
+---
+
+> **Sviluppato col ❤️ da TacciDev**
