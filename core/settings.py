@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 
 # Carica le variabili dal file .env
@@ -20,17 +21,47 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Supporto per PyInstaller (_MEIPASS)
+BUNDLE_DIR = getattr(sys, '_MEIPASS', BASE_DIR)
+if isinstance(BUNDLE_DIR, str):
+    BUNDLE_DIR = Path(BUNDLE_DIR)
+
+# Percorso per il database: deve essere scrivibile.
+# Se siamo in un bundle, cerchiamo il DB nella stessa cartella dell'eseguibile (Portable)
+if getattr(sys, 'frozen', False):
+    # La cartella dell'eseguibile
+    EXE_PATH = Path(sys.executable)
+    EXE_DIR = EXE_PATH.parent
+    
+    # Se siamo su Mac dentro un bundle .app, dobbiamo salire di 3 livelli 
+    # (Contents/MacOS/exec -> Contents -> .app -> Cartella Madre)
+    if sys.platform == 'darwin' and 'Contents/MacOS' in str(EXE_DIR):
+        EXE_DIR = EXE_DIR.parent.parent.parent
+
+    DB_PATH = EXE_DIR / 'db.sqlite3'
+    # Se il database non esiste fuori, lo cerchiamo nel bundle (sola lettura o primo avvio)
+    if not DB_PATH.exists():
+        BUNDLE_DB = BUNDLE_DIR / 'db.sqlite3'
+        if BUNDLE_DB.exists():
+            import shutil
+            try:
+                shutil.copy2(BUNDLE_DB, DB_PATH)
+            except:
+                DB_PATH = BUNDLE_DB # Fallback (potrebbe fallire in scrittura)
+else:
+    DB_PATH = BASE_DIR / 'db.sqlite3'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')   
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-taccidev-default-key-for-portable-app')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')         
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -85,7 +116,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
 
