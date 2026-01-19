@@ -101,3 +101,7 @@ backups/
 htmlcov/
 .tox/
 .pytest_cache/
+# Documentation & Task files
+project_documentation.md
+qa_protocol.md
+task.md
