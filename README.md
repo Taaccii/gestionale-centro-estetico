@@ -83,7 +83,7 @@ gestionale_centro_estetico/
 ### Prerequisiti
 - Python 3.11 o superiore
 - pip (gestore pacchetti Python)
-
+- admin e admin come username e password
 ### Setup
 
 ```bash
@@ -107,6 +107,7 @@ python manage.py createsuperuser
 
 # Avvia l'applicazione
 python main.py
+
 ```
 
 ---
