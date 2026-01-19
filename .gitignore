@@ -79,7 +79,8 @@ media/
 # Database (SQLite)
 # =========================
 *.sqlite3
-db.sqlite3
+!db.sqlite3
+
 
 # =========================
 # PyInstaller
