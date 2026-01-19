@@ -8,7 +8,6 @@ from gui.forms.appointment_form import AppointmentFormDialog
 from gui.theme import COLORS, SIZES, ICONS, get_font
 from datetime import date, datetime, timedelta
 from gui.components.toast import ToastNotification
-import locale # serve per formattare le date nella lingua del sistema
 import calendar
 
 import django
@@ -20,11 +19,20 @@ django.setup()
 from anagrafica.models import Dipendente
 from appuntamenti.models import Appuntamento
 
-# Imposta locale italiano per i nomi dei giorni
-try:
-    locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
-except:
-        pass # Fallback se non disponibile
+# Dizionari per i nomi italiani (evita problemi di encoding con locale) Prossima volta uso babel
+GIORNI_IT = {
+    0: "Lunedì", 1: "Martedì", 2: "Mercoledì", 3: "Giovedì",
+    4: "Venerdì", 5: "Sabato", 6: "Domenica"
+}
+MESI_IT = {
+    1: "Gennaio", 2: "Febbraio", 3: "Marzo", 4: "Aprile",
+    5: "Maggio", 6: "Giugno", 7: "Luglio", 8: "Agosto",
+    9: "Settembre", 10: "Ottobre", 11: "Novembre", 12: "Dicembre"
+}
+MESI_BREVI_IT = {
+    1: "Gen", 2: "Feb", 3: "Mar", 4: "Apr", 5: "Mag", 6: "Giu",
+    7: "Lug", 8: "Ago", 9: "Set", 10: "Ott", 11: "Nov", 12: "Dic"
+}
 
 
 class CalendarScreen(BaseScreen):
@@ -655,15 +663,17 @@ class CalendarScreen(BaseScreen):
         self._rebuild_grid()
 
     def _update_date_label(self):
-        # Formatta la data e la scrive nel Label
+        # Formatta la data usando i dizionari italiani (evita problemi encoding)
         if self.view_mode == "Mese":
-            text = self.current_date.strftime("%B %Y").title()
+            text = f"{MESI_IT[self.current_date.month]} {self.current_date.year}"
         elif self.view_mode == "Settimana":
             start = self.current_date - timedelta(days=self.current_date.weekday())
             end = start + timedelta(days=6)
-            text = f"Settimana {start.strftime('%d %b')} - {end.strftime('%d %b %Y')}".title()
+            text = f"Settimana {start.day} {MESI_BREVI_IT[start.month]} - {end.day} {MESI_BREVI_IT[end.month]} {end.year}"
         else:
-            text = self.current_date.strftime("%A %d %B %Y").title()
+            giorno = GIORNI_IT[self.current_date.weekday()]
+            mese = MESI_IT[self.current_date.month]
+            text = f"{giorno} {self.current_date.day} {mese} {self.current_date.year}"
 
         self.date_label.configure(text=text)
 
