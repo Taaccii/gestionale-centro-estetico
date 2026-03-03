@@ -7,6 +7,8 @@
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-5.2-FF6B6B?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
 
+![Demo](./docs/gif-preview-gestionale.gif)
+
 ---
 
 ## ✨ Funzionalità Principali
@@ -53,6 +55,7 @@
 | **Linguaggio** | Python 3.11+ |
 | **Build** | PyInstaller |
 | **CI/CD** | GitHub Actions |
+| **Release** | GitHub Releases (automated) |
 
 ---
 
@@ -84,6 +87,13 @@ gestionale_centro_estetico/
 - Python 3.11 o superiore
 - pip (gestore pacchetti Python)
 - admin e admin come username e password
+
+### 🔐 Demo Access
+- **Username:** admin
+- **Password:** admin
+
+> Un pulsante **"Accedi come Guest"** è disponibile nella schermata di login per accesso immediato.
+
 ### Setup
 
 ```bash
@@ -122,7 +132,7 @@ pip install pyinstaller
 pyinstaller --onefile --windowed main.py
 ```
 
-Gli eseguibili pre-compilati sono disponibili nella sezione **Releases** o negli **Artifacts** di GitHub Actions.
+Gli eseguibili vengono compilati e pubblicati automaticamente su **GitHub Releases** ad ogni push su main.
 
 ---
 
@@ -143,6 +153,8 @@ L'interfaccia segue le linee guida Apple Human Interface con:
 - [x] Calendario multi-vista
 - [x] Sistema di backup
 - [x] Build automatizzata
+- [x] Release automatizzate con GitHub Actions
+- [x] Accesso Guest per demo
 - [ ] Integrazione reale Email/SMS
 - [ ] Esportazione report PDF
 - [ ] Dashboard analytics avanzate
@@ -160,9 +172,10 @@ Vedi `LICENSE` per i dettagli completi.
 
 ## 👨‍💻 Autore
 
-**TacciDev**
+**Taaccii**
 
 - 📧 Email: taccidev@gmail.com
+- 💼 LinkedIn: [alessandro-barletta-dev](https://linkedin.com/in/alessandro-barletta-dev)
 - 🐙 GitHub: [@Taaccii](https://github.com/Taaccii)
 
 ---
