@@ -88,11 +88,9 @@ jobs:
           path: artifacts/mac
 
       - name: Elimina release latest precedente
-        uses: dev-drprasad/delete-tag-and-release@v0.6.0
-        with:
-          tag_name: latest
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true
+        run: gh release delete latest --yes --cleanup-tag || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Crea release latest
         uses: softprops/action-gh-release@v1
