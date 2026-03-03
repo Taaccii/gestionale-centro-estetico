@@ -21,16 +21,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-      
+
+      - name: Reset Database per la Release
+        run: |
+          if (Test-Path db.sqlite3) { Remove-Item db.sqlite3 }
+          python manage.py migrate
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python manage.py shell
+        env:
+          DJANGO_SETTINGS_MODULE: core.settings
+
       - name: Build Windows EXE
         run: |
           pyinstaller --noconsole --onefile --icon=assets/icon.ico --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
-      
-      - name: Carica l'eseguibile Windows
-        uses: actions/upload-artifact@v4
-        with:
-          name: Gestionale-Windows-Portable
-          path: dist/GestionaleCentroEstetico.exe
 
   build-macos:
     runs-on: macos-latest
@@ -46,6 +48,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
+
+      - name: Reset Database per la Release
+        run: |
+          rm -f db.sqlite3
+          python manage.py migrate
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python manage.py shell
+        env:
+          DJANGO_SETTINGS_MODULE: core.settings
       
       - name: Build MacOS APP
         run: |
