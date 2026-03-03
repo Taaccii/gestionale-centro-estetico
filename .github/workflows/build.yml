@@ -67,3 +67,39 @@ jobs:
         with:
           name: Gestionale-Mac-App
           path: dist/GestionaleCentroEstetico-Mac.zip
+
+
+  create-release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Scarica artifact Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: Gestionale-Windows-Portable
+          path: artifacts/windows
+
+      - name: Scarica artifact Mac
+        uses: actions/download-artifact@v4
+        with:
+          name: Gestionale-Mac-App
+          path: artifacts/mac
+
+      - name: Elimina release latest precedente
+        uses: dev-drprasad/delete-tag-and-release@v0.6.0
+        with:
+          tag_name: latest
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true
+
+      - name: Crea release latest
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          name: "Latest Build"
+          body: "Build automatica dell'ultima versione su main."
+          files: |
+            artifacts/windows/GestionaleCentroEstetico.exe
+            artifacts/mac/GestionaleCentroEstetico-Mac.zip
