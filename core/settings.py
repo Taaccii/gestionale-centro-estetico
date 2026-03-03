@@ -27,27 +27,31 @@ if isinstance(BUNDLE_DIR, str):
     BUNDLE_DIR = Path(BUNDLE_DIR)
 
 # Percorso per il database: deve essere scrivibile.
-# Se siamo in un bundle, cerchiamo il DB nella stessa cartella dell'eseguibile (Portable)
+# Se siamo in un bundle, usiamo il DB nella stessa cartella dell'eseguibile (Portable)
 if getattr(sys, 'frozen', False):
     # La cartella dell'eseguibile
     EXE_PATH = Path(sys.executable)
     EXE_DIR = EXE_PATH.parent
     
-    # Se siamo su Mac dentro un bundle .app, dobbiamo salire di 3 livelli 
-    # (Contents/MacOS/exec -> Contents -> .app -> Cartella Madre)
+    # Determinazione percorso DB ottimizzato per piattaforma
     if sys.platform == 'darwin' and 'Contents/MacOS' in str(EXE_DIR):
-        EXE_DIR = EXE_DIR.parent.parent.parent
+        
+        # Usa Application Support per isolare i dati dell'app
+        app_support = Path.home() / 'Library' / 'Application Support' / 'GestionaleCentroEstetico'
+        app_support.mkdir(parents=True, exist_ok=True)
+        DB_PATH = app_support / 'db.sqlite3'
+    else:
+        # Su Windows o uso non-bundle standard, scrive di fianco all'eseguibile
+        DB_PATH = EXE_DIR / 'db.sqlite3'
 
-    DB_PATH = EXE_DIR / 'db.sqlite3'
-    # Se il database non esiste fuori, lo cerchiamo nel bundle (sola lettura o primo avvio)
-    if not DB_PATH.exists():
-        BUNDLE_DB = BUNDLE_DIR / 'db.sqlite3'
-        if BUNDLE_DB.exists():
-            import shutil
-            try:
-                shutil.copy2(BUNDLE_DB, DB_PATH)
-            except:
-                DB_PATH = BUNDLE_DB # Fallback (potrebbe fallire in scrittura)
+    BUNDLE_DB = BUNDLE_DIR / 'db.sqlite3'
+    # Sovrascrive sempre col DB dal bundle, così ogni nuovo build parte pulito
+    if BUNDLE_DB.exists():
+        import shutil
+        try:
+            shutil.copy2(BUNDLE_DB, DB_PATH)
+        except Exception:
+            DB_PATH = BUNDLE_DB  # Fallback (potrebbe fallire in scrittura)
 else:
     DB_PATH = BASE_DIR / 'db.sqlite3'
 

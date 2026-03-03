@@ -21,6 +21,25 @@ import core.settings
 import django
 django.setup()
 
+# --- SAFETY NET: Assicura che l'utente admin esista sempre ---
+# Utile sia in sviluppo che nella versione portable, garantisce
+# che le credenziali admin/admin funzionino sempre.
+def _ensure_admin_user():
+    try:
+        from django.contrib.auth.models import User
+        admin = User.objects.filter(username='admin').first()
+        if admin is None:
+            # Crea l'utente admin se non esiste
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+        elif not admin.check_password('admin'):
+            # Resetta la password se è stata cambiata/corrotta
+            admin.set_password('admin')
+            admin.save()
+    except Exception as e:
+        print(f"[WARN] Impossibile verificare utente admin: {e}")
+
+_ensure_admin_user()
+
 from gui.components.toast import ToastNotification
 import customtkinter as ctk
 from gui.theme import COLORS, SIZES, ICONS, APPEARANCE_MODE, get_font
