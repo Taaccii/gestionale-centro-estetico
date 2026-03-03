@@ -1,13 +1,24 @@
 # 💅 Gestionale Centro Estetico
 
-> Sistema gestionale completo per centri estetici sviluppato in Python con Django e CustomTkinter.
+> **Sistema gestionale Full-Stack sviluppato in Python con Django 6.0, SQLite3 e CustomTkinter.**
 
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-6.0-092E20?style=for-the-badge&logo=django&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-5.2-FF6B6B?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
 
 ![Demo](./docs/gif-preview-gestionale.gif)
+
+## 🚀 Prova l'Applicazione
+
+### 📦 Download Diretto
+Scarica l'eseguibile pronto all'uso nella sezione **[Releases](../../releases)**. Non è richiesta l'installazione di Python per questa versione.
+
+### 🔐 Accesso Demo
+Nella schermata di login, puoi accedere istantaneamente in due modi:
+* **One-Click**: Clicca sul pulsante **"Accedi come Guest"**.
+* **Manuale**: Usa le credenziali `admin` / `admin`.
 
 ---
 
@@ -86,13 +97,6 @@ gestionale_centro_estetico/
 ### Prerequisiti
 - Python 3.11 o superiore
 - pip (gestore pacchetti Python)
-- admin e admin come username e password
-
-### 🔐 Demo Access
-- **Username:** admin
-- **Password:** admin
-
-> Un pulsante **"Accedi come Guest"** è disponibile nella schermata di login per accesso immediato.
 
 ### Setup
 
