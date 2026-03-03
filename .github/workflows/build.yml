@@ -26,16 +26,24 @@ jobs:
         run: |
           if (Test-Path db.sqlite3) { Remove-Item db.sqlite3 }
           python manage.py migrate
-          python -c "import os, django; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); 
-          django.setup(); 
-          from django.contrib.auth.models import User; 
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+          python -c "import os, django; \
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
+          django.setup(); \
+          from django.contrib.auth.models import User; \
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
+          if not User.objects.filter(username='admin').exists() else None"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
 
       - name: Build Windows EXE
         run: |
           pyinstaller --noconsole --onefile --icon=assets/icon.ico --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
+
+      - name: Carica il pacchetto Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gestionale-Windows-Portable
+          path: dist/GestionaleCentroEstetico.exe
 
   build-macos:
     runs-on: macos-latest
@@ -56,10 +64,12 @@ jobs:
         run: |
           rm -f db.sqlite3
           python manage.py migrate
-          python -c "import os, django; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); 
-          django.setup(); 
-          from django.contrib.auth.models import User; 
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+          python -c "import os, django; \
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
+          django.setup(); \
+          from django.contrib.auth.models import User; \
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
+          if not User.objects.filter(username='admin').exists() else None"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
       
