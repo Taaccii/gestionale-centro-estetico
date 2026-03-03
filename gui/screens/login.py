@@ -85,7 +85,7 @@ class LoginScreen(ctk.CTkFrame):
             font=get_font("body"),
             fg_color=COLORS["success"],
             hover_color=COLORS["success_hover"],
-            text_color=COLORS["text_primary"], # Leggermente più scuro del secondary
+            text_color=COLORS["text_primary"],
             command=self._on_remember_click
         )
         self.chk_remember.pack(pady=(0, 10))
@@ -118,6 +118,22 @@ class LoginScreen(ctk.CTkFrame):
             command=self._attempt_login
         )
         self.btn_login.pack(pady=(0, 40))
+
+
+        # Bottone Guest
+        self.btn_guest = ctk.CTkButton(
+            self.card,
+            text="Accedi come Guest",
+            width=250,
+            height=40,
+            font=get_font("button"),
+            text_color=COLORS["bg_dark"],
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            command=self._guest_login
+        )
+        self.btn_guest.pack(pady=(0, 10))
+
 
         # Attiva tasto invio per confermare accesso
         self.entry_psw.bind("<Return>", lambda e: self._attempt_login())
@@ -165,3 +181,12 @@ class LoginScreen(ctk.CTkFrame):
             self.frame_options.pack(before=self.btn_login, pady=(0, 20))
         else:
             self.frame_options.pack_forget()
+
+
+    def _guest_login(self):
+        """Accesso rapido per demo"""
+        self.entry_user.delete(0, 'end')
+        self.entry_user.insert(0, 'admin')
+        self.entry_psw.delete(0, 'end')
+        self.entry_psw.insert(0, 'admin')
+        self._attempt_login()
