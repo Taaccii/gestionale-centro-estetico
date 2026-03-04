@@ -93,33 +93,33 @@ class Command(BaseCommand):
                 prezzo_finale=s.prezzo,
                 durata_effettiva=s.durata_minuti
             )
-        Transazione.objects.create(
-            appuntamento=app_lungo,
-            importo_totale=app_lungo.prezzo_totale,
-            metodo_pagamento='contanti',
-        )
-
-        app_in_corso = Appuntamento.objects.create(
+        app_programmato = Appuntamento.objects.create(
             cliente=clienti[3],
-            dipendente=staff[0],
-            data_ora_inizio=oggi + timedelta(hours=3), # Oggi alle 13
-            data_ora_fine=oggi + timedelta(hours=4),
-            stato='in_corso',
-            note='Cliente in cabina'
+            dipendente=staff[0], # Lo assegno al primo dipendente così si vede subito nella vista Settimana
+            data_ora_inizio=oggi + timedelta(hours=6), # Oggi alle 16:00
+            data_ora_fine=oggi + timedelta(hours=7),
+            stato='prenotato', # Colore normale, non giallo
+            note='Da fare oggi pomeriggio'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_in_corso,
+            appuntamento=app_programmato,
             servizio=servizi[1], # Massaggio
             prezzo_finale=servizi[1].prezzo,
             durata_effettiva=servizi[1].durata_minuti
         )
 
         
+        # Se domani è domenica (weekday == 6), l'appuntamento futuro non si vedrebbe nella vista settimana (Lun-Sab).
+        # Lo spostiamo a lunedì in quel caso.
+        domani = oggi + timedelta(days=1, hours=4)
+        if domani.weekday() == 6:
+            domani += timedelta(days=1)
+
         app_futuro = Appuntamento.objects.create(
             cliente=clienti[2],
-            dipendente=staff[2],
-            data_ora_inizio=oggi + timedelta(days=1, hours=4), # Domani alle 14
-            data_ora_fine=oggi + timedelta(days=1, hours=5),
+            dipendente=staff[0], # Lo assegno al primo dipendente (default vista Settimana)
+            data_ora_inizio=domani, # Domani (o Lunedì) alle 14
+            data_ora_fine=domani + timedelta(hours=1),
             stato='prenotato'
         )
         DettaglioAppuntamento.objects.create(
