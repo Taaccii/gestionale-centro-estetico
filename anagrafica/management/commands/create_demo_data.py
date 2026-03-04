@@ -93,32 +93,52 @@ class Command(BaseCommand):
                 prezzo_finale=s.prezzo,
                 durata_effettiva=s.durata_minuti
             )
-        app_programmato = Appuntamento.objects.create(
+        Transazione.objects.create(
+            appuntamento=app_lungo,
+            importo_totale=app_lungo.prezzo_totale,
+            metodo_pagamento='contanti',
+        )
+
+        app_in_corso = Appuntamento.objects.create(
             cliente=clienti[3],
-            dipendente=staff[0], # Lo assegno al primo dipendente così si vede subito nella vista Settimana
-            data_ora_inizio=oggi + timedelta(hours=6), # Oggi alle 16:00
-            data_ora_fine=oggi + timedelta(hours=7),
-            stato='prenotato', # Colore normale, non giallo
-            note='Da fare oggi pomeriggio'
+            dipendente=staff[0],
+            data_ora_inizio=oggi + timedelta(hours=1), 
+            data_ora_fine=oggi + timedelta(hours=2),
+            stato='in_corso',
+            note='Cliente in cabina'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_programmato,
+            appuntamento=app_in_corso,
             servizio=servizi[1], # Massaggio
             prezzo_finale=servizi[1].prezzo,
             durata_effettiva=servizi[1].durata_minuti
         )
 
-        
-        # Se domani è domenica (weekday == 6), l'appuntamento futuro non si vedrebbe nella vista settimana (Lun-Sab).
-        # Lo spostiamo a lunedì in quel caso.
+        app_dopo = Appuntamento.objects.create(
+            cliente=clienti[0],
+            dipendente=staff[0],
+            data_ora_inizio=oggi + timedelta(hours=5),
+            data_ora_fine=oggi + timedelta(hours=6),
+            stato='prenotato',
+            note='Trattamento di routine'
+        )
+        DettaglioAppuntamento.objects.create(
+            appuntamento=app_dopo,
+            servizio=servizi[2], # Manicure
+            prezzo_finale=servizi[2].prezzo,
+            durata_effettiva=servizi[2].durata_minuti
+        )
+
+        # Se domani è domenica (weekday == 6), l'appuntamento futuro si sposta a lunedì
+        # perché la vista settimana del calendario mostra solo Lun-Sab.
         domani = oggi + timedelta(days=1, hours=4)
         if domani.weekday() == 6:
             domani += timedelta(days=1)
 
         app_futuro = Appuntamento.objects.create(
             cliente=clienti[2],
-            dipendente=staff[0], # Lo assegno al primo dipendente (default vista Settimana)
-            data_ora_inizio=domani, # Domani (o Lunedì) alle 14
+            dipendente=staff[0], 
+            data_ora_inizio=domani,
             data_ora_fine=domani + timedelta(hours=1),
             stato='prenotato'
         )
