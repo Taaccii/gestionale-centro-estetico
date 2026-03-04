@@ -32,6 +32,7 @@ jobs:
           from django.contrib.auth.models import User; \
           User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
           if not User.objects.filter(username='admin').exists() else None"
+          python manage.py create_demo_data
         env:
           DJANGO_SETTINGS_MODULE: core.settings
 
@@ -70,6 +71,7 @@ jobs:
           from django.contrib.auth.models import User; \
           User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
           if not User.objects.filter(username='admin').exists() else None"
+          python manage.py create_demo_data
         env:
           DJANGO_SETTINGS_MODULE: core.settings
       
