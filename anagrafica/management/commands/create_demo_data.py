@@ -45,5 +45,74 @@ class Command(BaseCommand):
         for c_data in clienti_demo:
             Cliente.objects.get_or_create(nome=c_data['nome'], cognome=c_data['cognome'], defaults=c_data)
 
-        self.stdout.write(self.style.SUCCESS(f'Creati {Cliente.objects.count()} Clienti demo'))
+       
+        from appuntamenti.models import Appuntamento, DettaglioAppuntamento
+        from cassa.models import Transazione
+        
+        
+        clienti = list(Cliente.objects.all())
+        staff = list(Dipendente.objects.all())
+        servizi = list(Servizio.objects.all())
+        oggi = timezone.now().replace(hour=10, minute=0, second=0, microsecond=0)
+
+        
+        app_passato = Appuntamento.objects.create(
+            cliente=clienti[0],
+            dipendente=staff[0],
+            data_ora_inizio=oggi - timedelta(days=1),
+            data_ora_fine=oggi - timedelta(days=1) + timedelta(minutes=60),
+            stato='completato'
+        )
+        DettaglioAppuntamento.objects.create(
+            appuntamento=app_passato,
+            servizio=servizi[0], # Pulizia Viso
+            prezzo_finale=servizi[0].prezzo,
+            durata_effettiva=servizi[0].durata_minuti
+        )
+        
+        Transazione.objects.create(
+            appuntamento=app_passato,
+            importo_totale=app_passato.prezzo_totale,
+            metodo_pagamento='carta',
+        )
+
+        
+        app_lungo = Appuntamento.objects.create(
+            cliente=clienti[1],
+            dipendente=staff[1],
+            data_ora_inizio=oggi,
+            data_ora_fine=oggi + timedelta(minutes=150),
+            stato='completato',
+            note='Trattamento SPA completo'
+        )
+        
+        for s in servizi[1:4]: # Relax, Manicure, Pedicure
+            DettaglioAppuntamento.objects.create(
+                appuntamento=app_lungo,
+                servizio=s,
+                prezzo_finale=s.prezzo,
+                durata_effettiva=s.durata_minuti
+            )
+        Transazione.objects.create(
+            appuntamento=app_lungo,
+            importo_totale=app_lungo.prezzo_totale,
+            metodo_pagamento='contanti',
+        )
+
+        
+        app_futuro = Appuntamento.objects.create(
+            cliente=clienti[2],
+            dipendente=staff[2],
+            data_ora_inizio=oggi + timedelta(days=1, hours=4), # Domani alle 14
+            data_ora_fine=oggi + timedelta(days=1, hours=5),
+            stato='prenotato'
+        )
+        DettaglioAppuntamento.objects.create(
+            appuntamento=app_futuro,
+            servizio=servizi[4], # Epilazione
+            prezzo_finale=servizi[4].prezzo,
+            durata_effettiva=servizi[4].durata_minuti
+        )
+
+        self.stdout.write(self.style.SUCCESS(f'Creati {Appuntamento.objects.count()} Appuntamenti demo completi di dettagli e incassi'))
         self.stdout.write(self.style.SUCCESS('Completato! Il database ora contiene dati realistici.'))
