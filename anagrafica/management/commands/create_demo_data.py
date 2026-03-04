@@ -99,6 +99,21 @@ class Command(BaseCommand):
             metodo_pagamento='contanti',
         )
 
+        app_in_corso = Appuntamento.objects.create(
+            cliente=clienti[3],
+            dipendente=staff[0],
+            data_ora_inizio=oggi + timedelta(hours=3), # Oggi alle 13
+            data_ora_fine=oggi + timedelta(hours=4),
+            stato='in_corso',
+            note='Cliente in cabina'
+        )
+        DettaglioAppuntamento.objects.create(
+            appuntamento=app_in_corso,
+            servizio=servizi[1], # Massaggio
+            prezzo_finale=servizi[1].prezzo,
+            durata_effettiva=servizi[1].durata_minuti
+        )
+
         
         app_futuro = Appuntamento.objects.create(
             cliente=clienti[2],

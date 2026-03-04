@@ -410,18 +410,25 @@ class CalendarScreen(BaseScreen):
                 child.destroy()
 
         # Query per prendere gli appuntamenti
+        # Utilizza datetime con inizio e fine assoluti per evitare i bug di __date__range in django/sqlite
         if self.view_mode == "Giorno":
-            start_date = end_date = self.current_date
+            start_dt = datetime.combine(self.current_date, datetime.min.time())
+            end_dt = datetime.combine(self.current_date, datetime.max.time())
         elif self.view_mode == "Settimana":
             start_date = self.current_date - timedelta(days=self.current_date.weekday())
             end_date = start_date + timedelta(days=6)
+            start_dt = datetime.combine(start_date, datetime.min.time())
+            end_dt = datetime.combine(end_date, datetime.max.time())
         else: # Mese
             start_date = self.current_date.replace(day=1)
             _, last = calendar.monthrange(self.current_date.year, self.current_date.month)
             end_date = self.current_date.replace(day=last)
+            start_dt = datetime.combine(start_date, datetime.min.time())
+            end_dt = datetime.combine(end_date, datetime.max.time())
 
         appuntamenti = Appuntamento.objects.filter(
-            data_ora_inizio__date__range=[start_date, end_date]
+            data_ora_inizio__gte=start_dt,
+            data_ora_inizio__lte=end_dt
         ).select_related('cliente', 'dipendente').prefetch_related('dettagli__servizio')
 
         # Applica il filtro dipendente se selezionato
