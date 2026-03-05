@@ -85,7 +85,7 @@ jobs:
       
       - name: Build MacOS APP
         run: |
-          pyinstaller --noconsole --onefile --icon=assets/icon.icns --paths . \
+          pyinstaller --noconsole --onedir --windowed --icon=assets/icon.icns --paths . \
             --collect-submodules anagrafica \
             --collect-submodules servizi \
             --collect-submodules appuntamenti \
@@ -94,14 +94,19 @@ jobs:
             --collect-submodules gui \
             --add-data "db.sqlite3:." \
             --add-data "assets:assets" \
-            --name "GestionaleCentroEstetico-Mac" \
+            --name "GestionaleCentroEstetico" \
             main.py
+      
+      - name: Comprimi l'app Mac in ZIP
+        run: |
+          cd dist
+          zip -r GestionaleCentroEstetico-Mac.zip GestionaleCentroEstetico.app
       
       - name: Carica il pacchetto Mac
         uses: actions/upload-artifact@v4
         with:
           name: Gestionale-Mac-App
-          path: dist/GestionaleCentroEstetico-Mac
+          path: dist/GestionaleCentroEstetico-Mac.zip
 
   create-release:
     needs: [build-windows, build-macos]
@@ -131,7 +136,7 @@ jobs:
         with:
           tag_name: latest
           name: "Latest Build"
-          body: "Build automatica dell'ultima versione su main. Nota: su Mac l'eseguibile potrebbe richiedere permessi di esecuzione (chmod +x)."
+          body: "Build automatica dell'ultima versione su main. Per Mac, estrai il file ZIP e avvia l'applicazione."
           files: |
             artifacts/windows/GestionaleCentroEstetico.exe
-            artifacts/mac/GestionaleCentroEstetico-Mac
+            artifacts/mac/GestionaleCentroEstetico-Mac.zip
