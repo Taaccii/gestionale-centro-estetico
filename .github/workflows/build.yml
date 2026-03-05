@@ -37,7 +37,17 @@ jobs:
 
       - name: Build Windows EXE
         run: |
-          pyinstaller --noconsole --onefile --icon=assets/icon.ico --paths . --collect-submodules core --collect-submodules gui --add-data "db.sqlite3;." --add-data "assets;assets" --name "GestionaleCentroEstetico" main.py
+          pyinstaller --noconsole --onefile --icon=assets/icon.ico --paths . `
+            --collect-submodules anagrafica `
+            --collect-submodules servizi `
+            --collect-submodules appuntamenti `
+            --collect-submodules cassa `
+            --collect-submodules core `
+            --collect-submodules gui `
+            --add-data "db.sqlite3;." `
+            --add-data "assets;assets" `
+            --name "GestionaleCentroEstetico" `
+            main.py
 
       - name: Carica il pacchetto Windows
         uses: actions/upload-artifact@v4
@@ -75,25 +85,23 @@ jobs:
       
       - name: Build MacOS APP
         run: |
-          pyinstaller --noconsole --onedir --icon=assets/icon.icns --paths . \
+          pyinstaller --noconsole --onefile --icon=assets/icon.icns --paths . \
+            --collect-submodules anagrafica \
+            --collect-submodules servizi \
+            --collect-submodules appuntamenti \
+            --collect-submodules cassa \
             --collect-submodules core \
             --collect-submodules gui \
             --add-data "db.sqlite3:." \
             --add-data "assets:assets" \
-            --name "GestionaleCentroEstetico" \
+            --name "GestionaleCentroEstetico-Mac" \
             main.py
-      
-      - name: Comprimi l'app Mac in ZIP
-        run: |
-          cd dist
-          zip -r GestionaleCentroEstetico-Mac.zip GestionaleCentroEstetico.app
       
       - name: Carica il pacchetto Mac
         uses: actions/upload-artifact@v4
         with:
           name: Gestionale-Mac-App
-          path: dist/GestionaleCentroEstetico-Mac.zip
-
+          path: dist/GestionaleCentroEstetico-Mac
 
   create-release:
     needs: [build-windows, build-macos]
@@ -123,7 +131,7 @@ jobs:
         with:
           tag_name: latest
           name: "Latest Build"
-          body: "Build automatica dell'ultima versione su main."
+          body: "Build automatica dell'ultima versione su main. Nota: su Mac l'eseguibile potrebbe richiedere permessi di esecuzione (chmod +x)."
           files: |
             artifacts/windows/GestionaleCentroEstetico.exe
-            artifacts/mac/GestionaleCentroEstetico-Mac.zip
+            artifacts/mac/GestionaleCentroEstetico-Mac
