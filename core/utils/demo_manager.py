@@ -23,7 +23,7 @@ def populate_demo_data_if_empty():
             ("Massaggio Relax Corpo", 55.00, 60), 
             ("Pedicure Curativo", 35.00, 60),
             ("Epilazione Laser Viso", 50.00, 30), 
-            ("Trattamento Fango fango drenante", 65.00, 90),
+            ("Trattamento Fango Drenante", 65.00, 90),
             ("Pressoterapia", 35.00, 45), 
             ("Massaggio Viso Kobido", 40.00, 45)
         ]
@@ -43,8 +43,14 @@ def populate_demo_data_if_empty():
             staff_objs.append(d)
 
         laura = staff_objs[0]
+        marco = staff_objs[1]
 
-        nomi_clienti = [("Anna", "Rossi"), ("Giuseppe", "Verdi"), ("Elena", "Bianchi"), ("Luca", "Neri")]
+        # 3. Clienti
+        nomi_clienti = [
+            ("Anna", "Rossi"), ("Giuseppe", "Verdi"), 
+            ("Elena", "Bianchi"), ("Luca", "Neri"),
+            ("Marta", "Ricci"), ("Sara", "Galli")
+        ]
         clienti_objs = []
         for nome, cognome in nomi_clienti:
             c, _ = Cliente.objects.get_or_create(
@@ -54,82 +60,101 @@ def populate_demo_data_if_empty():
             )
             clienti_objs.append(c)
 
+        # 4. Appuntamenti
         oggi = timezone.now().date()
-        
-        inizio_a = timezone.make_aware(datetime.combine(oggi, time(9, 30)))
+        ieri = oggi - timedelta(days=1)
+        domani = oggi + timedelta(days=1)
+        if domani.weekday() == 6: # Salta domenica
+            domani += timedelta(days=1)
+        if ieri.weekday() == 6: # Salta domenica (se fosse oggi lunedì)
+            ieri -= timedelta(days=1)
+
+        # --- IERI (Passati) ---
+        # 1. Completato Ieri Mattina
+        inizio_ieri_1 = timezone.make_aware(datetime.combine(ieri, time(10, 0)))
+        app_ieri_1 = Appuntamento.objects.create(
+            cliente=clienti_objs[4], # Marta Ricci
+            dipendente=laura,
+            data_ora_inizio=inizio_ieri_1,
+            data_ora_fine=inizio_ieri_1 + timedelta(minutes=60),
+            stato='completato',
+            note='Trattamento viso ieri'
+        )
+        DettaglioAppuntamento.objects.create(
+            appuntamento=app_ieri_1, servizio=servizi[0], prezzo_finale=servizi[0].prezzo, durata_effettiva=servizi[0].durata_minuti
+        )
+        Transazione.objects.create(
+            appuntamento=app_ieri_1, importo_totale=app_ieri_1.prezzo_totale, metodo_pagamento='contanti', data_ora_pagamento=app_ieri_1.data_ora_fine
+        )
+
+        # --- OGGI (Presente) ---
+        # 1. OGGI Completato (Mattina presto)
+        inizio_a = timezone.make_aware(datetime.combine(oggi, time(8, 30)))
         app_fatto = Appuntamento.objects.create(
             cliente=clienti_objs[0],
             dipendente=laura,
             data_ora_inizio=inizio_a,
-            data_ora_fine=inizio_a + timedelta(minutes=servizi[2].durata_minuti),
+            data_ora_fine=inizio_a + timedelta(minutes=60),
             stato='completato',
-            note='Cliente abituale, massaggio corpo.'
+            note='Fatto stamattina'
         )
         DettaglioAppuntamento.objects.create(
             appuntamento=app_fatto, servizio=servizi[2], prezzo_finale=servizi[2].prezzo, durata_effettiva=servizi[2].durata_minuti
         )
-
         Transazione.objects.create(
-            appuntamento=app_fatto, 
-            importo_totale=app_fatto.prezzo_totale, 
-            metodo_pagamento='contanti', 
-            data_ora_pagamento=app_fatto.data_ora_fine
+            appuntamento=app_fatto, importo_totale=app_fatto.prezzo_totale, metodo_pagamento='contanti', data_ora_pagamento=app_fatto.data_ora_fine
         )
 
-        inizio_b = timezone.make_aware(datetime.combine(oggi, time(11, 30)))
+        inizio_b = timezone.make_aware(datetime.combine(oggi, time(11, 0)))
         app_in_corso = Appuntamento.objects.create(
             cliente=clienti_objs[1],
             dipendente=laura,
             data_ora_inizio=inizio_b,
-            data_ora_fine=inizio_b + timedelta(minutes=servizi[0].durata_minuti),
-            stato='in corso',
-            note='Trattamento viso iniziato'
+            data_ora_fine=inizio_b + timedelta(minutes=45),
+            stato='in_corso',
+            note='In cabina'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_in_corso, servizio=servizi[0], prezzo_finale=servizi[0].prezzo, durata_effettiva=servizi[0].durata_minuti
+            appuntamento=app_in_corso, servizio=servizi[1], prezzo_finale=servizi[1].prezzo, durata_effettiva=servizi[1].durata_minuti
         )
 
-        marco = staff_objs[1]
         inizio_e = timezone.make_aware(datetime.combine(oggi, time(12, 0)))
         app_marco = Appuntamento.objects.create(
-            cliente=clienti_objs[3],
+            cliente=clienti_objs[5],
             dipendente=marco,
             data_ora_inizio=inizio_e,
-            data_ora_fine=inizio_e + timedelta(minutes=servizi[4].durata_minuti),
-            stato='in corso',
-            note='Massaggio iniziato'
+            data_ora_fine=inizio_e + timedelta(minutes=60),
+            stato='in_corso',
+            note='Massaggio'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_marco, servizio=servizi[4], prezzo_finale=servizi[4].prezzo, durata_effettiva=servizi[4].durata_minuti
+            appuntamento=app_marco, servizio=servizi[2], prezzo_finale=servizi[2].prezzo, durata_effettiva=servizi[2].durata_minuti
         )
 
-        inizio_c = timezone.make_aware(datetime.combine(oggi, time(15, 0)))
+        inizio_c = timezone.make_aware(datetime.combine(oggi, time(15, 30)))
         app_prenotato = Appuntamento.objects.create(
             cliente=clienti_objs[2],
             dipendente=laura,
             data_ora_inizio=inizio_c,
-            data_ora_fine=inizio_c + timedelta(minutes=servizi[1].durata_minuti),
+            data_ora_fine=inizio_c + timedelta(minutes=60),
             stato='prenotato',
-            note='Prenotazione telefonica'
+            note='Prenotato per pomeriggio'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_prenotato, servizio=servizi[1], prezzo_finale=servizi[1].prezzo, durata_effettiva=servizi[1].durata_minuti
+            appuntamento=app_prenotato, servizio=servizi[3], prezzo_finale=servizi[3].prezzo, durata_effettiva=servizi[3].durata_minuti
         )
 
-        domani = oggi + timedelta(days=1)
-        if domani.weekday() == 6:
-            domani += timedelta(days=1)
-        
-        inizio_d = timezone.make_aware(datetime.combine(domani, time(10, 30)))
+        # --- DOMANI (Futuro) ---
+        inizio_d = timezone.make_aware(datetime.combine(domani, time(10, 0)))
         app_domani = Appuntamento.objects.create(
             cliente=clienti_objs[3],
             dipendente=laura,
             data_ora_inizio=inizio_d,
-            data_ora_fine=inizio_d + timedelta(minutes=servizi[3].durata_minuti),
+            data_ora_fine=inizio_d + timedelta(minutes=60),
             stato='prenotato'
         )
         DettaglioAppuntamento.objects.create(
-            appuntamento=app_domani, servizio=servizi[3], prezzo_finale=servizi[3].prezzo, durata_effettiva=servizi[3].durata_minuti
+            appuntamento=app_domani, servizio=servizi[0], prezzo_finale=servizi[0].prezzo, durata_effettiva=servizi[0].durata_minuti
         )
 
         print(f"[DEMO] Generazione completata con successo: {Appuntamento.objects.count()} appuntamenti.")
