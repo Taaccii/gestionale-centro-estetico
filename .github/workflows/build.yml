@@ -30,9 +30,8 @@ jobs:
           os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
           django.setup(); \
           from django.contrib.auth.models import User; \
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
-          if not User.objects.filter(username='admin').exists() else None"
-          python manage.py create_demo_data
+          User.objects.filter(username='admin').exists() or \
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
 
@@ -69,9 +68,8 @@ jobs:
           os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
           django.setup(); \
           from django.contrib.auth.models import User; \
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
-          if not User.objects.filter(username='admin').exists() else None"
-          python manage.py create_demo_data
+          User.objects.filter(username='admin').exists() or \
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
       

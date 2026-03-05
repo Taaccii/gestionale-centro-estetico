@@ -410,21 +410,23 @@ class CalendarScreen(BaseScreen):
                 child.destroy()
 
         # Query per prendere gli appuntamenti
-        # Utilizza datetime con inizio e fine assoluti per evitare i bug di __date__range in django/sqlite
+        # Utilizza datetime con inizio e fine assoluti aware per evitare i bug di __date__range e i warning di Django
+        from django.utils import timezone
+        
         if self.view_mode == "Giorno":
-            start_dt = datetime.combine(self.current_date, datetime.min.time())
-            end_dt = datetime.combine(self.current_date, datetime.max.time())
+            start_dt = timezone.make_aware(datetime.combine(self.current_date, datetime.min.time()))
+            end_dt = timezone.make_aware(datetime.combine(self.current_date, datetime.max.time()))
         elif self.view_mode == "Settimana":
             start_date = self.current_date - timedelta(days=self.current_date.weekday())
             end_date = start_date + timedelta(days=6)
-            start_dt = datetime.combine(start_date, datetime.min.time())
-            end_dt = datetime.combine(end_date, datetime.max.time())
+            start_dt = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+            end_dt = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
         else: # Mese
             start_date = self.current_date.replace(day=1)
             _, last = calendar.monthrange(self.current_date.year, self.current_date.month)
             end_date = self.current_date.replace(day=last)
-            start_dt = datetime.combine(start_date, datetime.min.time())
-            end_dt = datetime.combine(end_date, datetime.max.time())
+            start_dt = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+            end_dt = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
 
         appuntamenti = Appuntamento.objects.filter(
             data_ora_inizio__gte=start_dt,
@@ -440,7 +442,10 @@ class CalendarScreen(BaseScreen):
 
         # Scrive gli appuntamenti ricavando la chiave per trovare lo slot giusto
         for app in appuntamenti:
-
+            # IMPORTANTE: Converte in ora locale prima di cercare lo slot nella griglia
+            data_ora_locale = timezone.localtime(app.data_ora_inizio)
+            ora_inizio = data_ora_locale.strftime("%H:%M")
+            
             # Mappa dei colori per stato appuntamento
             status_color = {
                 'prenotato': COLORS["accent"],
@@ -454,13 +459,12 @@ class CalendarScreen(BaseScreen):
             num_slot = max(1, app.durata_minuti // 30)
 
             # Trova lo slot di partenza per avere le coordinate (riga, colonna)
-            ora_inizio = app.data_ora_inizio.strftime("%H:%M")
             if self.view_mode == "Giorno":
                 chiave_inizio = (app.dipendente.id, ora_inizio)
             elif self.view_mode == "Settimana":
-                chiave_inizio = (app.dipendente.id, ora_inizio, app.data_ora_inizio.weekday())
+                chiave_inizio = (app.dipendente.id, ora_inizio, data_ora_locale.weekday())
             else: # Mese
-                chiave_inizio = app.data_ora_inizio.date()
+                chiave_inizio = data_ora_locale.date()
             
             if chiave_inizio in self.slots:
                 if self.view_mode != "Mese":

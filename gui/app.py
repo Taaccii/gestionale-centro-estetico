@@ -40,6 +40,13 @@ def _ensure_admin_user():
 
 _ensure_admin_user()
 
+# --- DEMO DATA: Popola il database al primo avvio se vuoto ---
+try:
+    from core.utils.demo_manager import populate_demo_data_if_empty
+    populate_demo_data_if_empty()
+except Exception as e:
+    print(f"[WARN] Impossibile generare dati demo: {e}")
+
 from gui.components.toast import ToastNotification
 import customtkinter as ctk
 from gui.theme import COLORS, SIZES, ICONS, APPEARANCE_MODE, get_font
