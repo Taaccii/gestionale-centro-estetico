@@ -30,8 +30,8 @@ jobs:
           os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
           django.setup(); \
           from django.contrib.auth.models import User; \
-          User.objects.filter(username='admin').exists() or \
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
+          if not User.objects.filter(username='admin').exists() else None"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
 
@@ -78,14 +78,14 @@ jobs:
           os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings'); \
           django.setup(); \
           from django.contrib.auth.models import User; \
-          User.objects.filter(username='admin').exists() or \
-          User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+          User.objects.create_superuser('admin', 'admin@example.com', 'admin') \
+          if not User.objects.filter(username='admin').exists() else None"
         env:
           DJANGO_SETTINGS_MODULE: core.settings
       
       - name: Build MacOS APP
         run: |
-          pyinstaller --noconsole --onedir --windowed --icon=assets/icon.icns --paths . \
+          pyinstaller --noconsole --onedir --icon=assets/icon.icns --paths . \
             --collect-submodules anagrafica \
             --collect-submodules servizi \
             --collect-submodules appuntamenti \
@@ -107,6 +107,7 @@ jobs:
         with:
           name: Gestionale-Mac-App
           path: dist/GestionaleCentroEstetico-Mac.zip
+
 
   create-release:
     needs: [build-windows, build-macos]
@@ -136,7 +137,7 @@ jobs:
         with:
           tag_name: latest
           name: "Latest Build"
-          body: "Build automatica dell'ultima versione su main. Per Mac, estrai il file ZIP e avvia l'applicazione."
+          body: "Build automatica dell'ultima versione su main."
           files: |
             artifacts/windows/GestionaleCentroEstetico.exe
             artifacts/mac/GestionaleCentroEstetico-Mac.zip
